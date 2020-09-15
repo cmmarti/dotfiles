@@ -40,6 +40,7 @@ values."
      javascript
      markdown
      org
+     python
      ruby
      syntax-checking
      ;; better-defaults
