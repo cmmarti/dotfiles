@@ -59,7 +59,10 @@ values."
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages
+   '(
+     evil-mc
+     )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -273,9 +276,7 @@ values."
    ;; (default 'evil)
    dotspacemacs-folding-method 'evil
    ;; If non-nil smartparens-strict-mode will be enabled in programming modes.
-   ;; (default nil)
-   dotspacemacs-smartparens-strict-mode nil
-   ;; If non-nil pressing the closing parenthesis `)' key in insert mode passes
+   ;; (default niley in insert mode passes
    ;; over any automatically added closing parenthesis, bracket, quote, etc…
    ;; This can be temporary disabled by pressing `C-q' before `)'. (default nil)
    dotspacemacs-smart-closing-parenthesis nil
@@ -319,6 +320,26 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
+  ;; Multiple cursors
+  (use-package evil-mc
+    :ensure t
+    :config
+
+    (defun evil--mc-make-cursor-at-col (startcol _endcol orig-line)
+      (move-to-column startcol)
+      (unless (= (line-number-at-pos) orig-line)
+        (evil-mc-make-cursor-here)))
+    (defun evil-mc-make-vertical-cursors (beg end)
+      (interactive (list (region-beginning) (region-end)))
+      (evil-mc-pause-cursors)
+      (apply-on-rectangle #'evil--mc-make-cursor-at-col
+                          beg end (line-number-at-pos (point)))
+      (evil-mc-resume-cursors)
+      (evil-normal-state)
+      (move-to-column (evil-mc-column-number (if (> end beg)
+                                                 beg
+                                               end)))))
+  (global-evil-mc-mode t)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
